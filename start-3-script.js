@@ -3,29 +3,21 @@
 //må kjøres innimellom
 
 
-/**
- * Returns an array with the hostnames of all servers in alphabetical order.
- * 
- * @returns {string[]} Returns an array with the hostnames of all servers in alphabetical order.
- */
+//finner alle servere
+//prøver kjøre programmer og NUKE.exe
+//deployer så deploy-3-scripts-@.js på alle nuket
+import { getServers } from "./f-getServers.js";
 export async function main(ns) {
-  //ns.tprint(netscan(ns));
 
-  // const scriptToRun = "script", "home" //finn ut seinere
-  const atkTarget = "the-hub"
+  const atkTarget = ns.read("atkTarget.txt");
   const scriptRAM = ns.getScriptRam("early-template.js", "home");
+  const deployDelay = 10000 //ms for at ikke alle servrene skal jobbe helt likt
+  const servers = await getServers(ns);
 
   //starter monitor av target på home server, må kanskje finne en løsning
   //for at den ikke skal åpne mange av samme
   ns.exec("monitor-target-@.js", "home", 1, atkTarget)
-
-  function getServers() {
-    const foundServers = new Set([`home`]);
-    for (const server of foundServers)
-      ns.scan(server).forEach(adjacentServer => foundServers.add(adjacentServer));
-    return [...foundServers].sort();
-  }
-  let servers = getServers(); //----
+  ns.tprint(`Deployer med ${deployDelay}ms delay...`)
 
   for (let i = 0; i < servers.length; ++i) {
     const target = servers[i];
@@ -33,6 +25,7 @@ export async function main(ns) {
       continue
     }
 
+    //programmene for å åpne porter
     if (!ns.hasRootAccess(target)) {
       if (ns.fileExists("BruteSSH.exe", "home")) {
         await ns.brutessh(target);
@@ -49,7 +42,6 @@ export async function main(ns) {
       if (ns.fileExists("SQLInject.exe", "home")) {
         await ns.sqlinject(target)
       }
-      //add all programmene her for å åpne porter
     }
     await ns.sleep(50);
     try { ns.nuke(target); }
@@ -61,20 +53,20 @@ export async function main(ns) {
       await ns.killall(target) //fjerner alle kjørende scripts
       let targetRAM = ns.getServerMaxRam(target)
       let maxThreads = Math.floor(targetRAM / scriptRAM) //deler server på script
-      if (maxThreads > 0) { // KJØRE DEPLOY HER KANSKJE
+      if (maxThreads > 0) {
         ns.exec("deploy-3-scripts-@.js", "home", 1, target, targetRAM, atkTarget, true)
-        await ns.sleep(1000) //for at ikke alle servrene ska jobbe likt 1sek
+        await ns.sleep(deployDelay) //for at ikke alle servrene skal jobbe helt likt 10sek
       }
       else {
-        ns.tprint("!!---- NOT ENOUGH RAM on server ", target)
+        ns.print("NOT ENOUGH RAM on server ", target)
       }
     }
-
     else {
       let portsReq = ns.getServerNumPortsRequired(target)
-      ns.tprint(target, " !! NOT NUKED, portsReq: ", portsReq)
+      ns.tprint(`NOT NUKED, ${target}, portsReq: , ${portsReq}`)
     };
   }
+  ns.tprint("Finished")
 
   // 
 }
