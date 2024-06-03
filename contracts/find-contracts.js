@@ -5,14 +5,15 @@
 //array med alle servere
 
 //henter alle servere, sjekker så etter .cct filer for alltid
-//sender så map med host,cct til Answers.js
+//sender så host [files] til answers
 //som finner rett svar fil til kontrakten
 import { getServers } from "./f-getServers.js";
 export async function main(ns) {
   ns.disableLog("scan")
 
-  const onlyHomeServer = true //true for testing purposes
+  const onlyHomeServer = false //true for testing purposes
   const timeinterval = 300000 //300000 =5min
+  const servers = await getServers(ns)
   const hostsAndContracts = new Map()
 
   //testing on contracts located on home only
@@ -24,28 +25,27 @@ export async function main(ns) {
     }
   }
 
-  else if (onlyHomeServer === false) {
-    const servers = await getServers(ns)
 
-    function checkServersForContracts() {
-      //ns.tprint("checkServerForContracts har kjørt")
-      for (let i = 0; i < servers.length; ++i) {
-        const host = servers[i];
-        //ns.tprint("host ", host) 
-        let cctFiles = ns.ls(host, "cct") //array
-        if (cctFiles.length > 0) {
-          hostsAndContracts.set(host, cctFiles)
-        }
-      }
-      if (hostsAndContracts.size > 0) {
-        ns.print(hostsAndContracts.size, " contracts found! Servers scanned ", servers.length)
-        return hostsAndContracts
-      }
-      if (hostsAndContracts.size == 0) {
-        ns.print("INGEN NYE KONTRAKTER FUNNET! Servers scanned ", servers.length, " nytt søk om ", timeinterval, "ms")
+
+  function checkServersForContracts() {
+    //ns.tprint("checkServerForContracts har kjørt")
+    for (let i = 0; i < servers.length; ++i) {
+      const host = servers[i];
+      //ns.tprint("host ", host) 
+      let cctFiles = ns.ls(host, "cct") //array
+      if (cctFiles.length > 0) {
+        hostsAndContracts.set(host, cctFiles)
       }
     }
+    if (hostsAndContracts.size > 0) {
+      ns.print(hostsAndContracts.size, " contracts found! Servers scanned ", servers.length)
+      return hostsAndContracts
+    }
+    if (hostsAndContracts.size == 0) {
+      ns.print("INGEN NYE KONTRAKTER FUNNET! Servers scanned ", servers.length, " nytt søk om ", timeinterval, "ms")
+    }
   }
+
   while (true) {
     if (onlyHomeServer === false) {
       checkServersForContracts()

@@ -12,7 +12,7 @@ export async function main(ns) {
     if (ns.getServerMoneyAvailable("home") > prisNy) {
       let target = ns.purchaseServer(targetRAM + "-pserv-" + i, targetRAM);
       ns.exec("deploy-3-scripts-@.js", "home", 1, target, targetRAM, atkTarget)
-      ns.tprint("Kjøpt server for $", prisNy);
+      ns.tprint("Kjøpt server for $", prisNy.toLocaleString());
       ++i;
     }
     await ns.sleep(1000); //Removing this line will cause an infinite loop and crash the game.
