@@ -8,7 +8,7 @@ export async function main(ns) {
     const inputData = ns.codingcontract.getData(file, host)
   
   
-    const answer = caesarCipher(plaintext, shift)
+    const answer = nameFunction(inputData)
     ns.tprint(ns.codingcontract.attempt(answer, file, host))
   
   }

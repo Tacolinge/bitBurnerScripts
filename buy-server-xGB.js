@@ -1,8 +1,10 @@
 /** @param {NS} ns */
+//buys servers to serverlimit is reached
 export async function main(ns) {
-  const targetRAM = 4096; //GB
+  const targetRAM = 1024; //GB
   const atkTarget = ns.read("atkTarget.txt");
-  let i = 0;
+  let i = ns.getPurchasedServers().length 
+
   // Continuously try to purchase servers until the maximum
   const prisNy = ns.getPurchasedServerCost(targetRAM);
   ns.tprint("Pris for ny server: $", prisNy.toLocaleString(), "  med ", targetRAM, " GB")
@@ -15,6 +17,6 @@ export async function main(ns) {
       ns.tprint("Kjøpt server for $", prisNy.toLocaleString());
       ++i;
     }
-    await ns.sleep(1000); //Removing this line will cause an infinite loop and crash the game.
+    await ns.sleep(500); //Removing this line will cause an infinite loop and crash the game.
   }
 }
