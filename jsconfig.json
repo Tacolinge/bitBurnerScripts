@@ -1,5 +1,17 @@
 {
-    "compilerOptions": {
-        "baseUrl": "."
-    }
+  "compilerOptions": {
+    "checkJs": true,
+    "maxNodeModuleJsDepth": 0,
+    "skipLibCheck": true,
+    "target": "ESNext",
+    "module": "ESNext"
+  },
+  "include": [
+    "**/*.js",
+    "NetscriptDefinitions.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/.git",
+  ]
 }
